@@ -1,5 +1,5 @@
 ARG DUPLICATI_VERSION=2.4.0.0-stable
-FROM duplicati/duplicati:${DUPLICATI_VERSION}
+FROM duplicati/duplicati:${DUPLICATI_VERSION}@sha256:eb0c1298a1974048332745b393897ae3cc1c20258e4fc26a796f2b5d75eb6218
 
 LABEL backup.keepRunning="true"
 
