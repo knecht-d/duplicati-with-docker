@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "dockerfile"
+  ],
+  "packageRules": [
+    {
+      "description": "Track only official Duplicati stable image releases",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "duplicati/duplicati"
+      ],
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+\\.\\d+-stable$/"
+    }
+  ]
+}
