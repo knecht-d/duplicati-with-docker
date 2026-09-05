@@ -44,9 +44,11 @@ The IDs are stored in:
 
 The post-backup script starts only those recorded IDs, so containers that were
 already stopped stay stopped. It removes the state file after every recorded
-container has been started successfully. If stopping or starting fails, the
-state file is retained to make recovery possible. A stale state file prevents a
-new pre-backup run from overwriting recovery information.
+container has been started successfully. If pre-backup shutdown fails, the hook
+attempts to restart everything it stopped and removes the state file when that
+rollback succeeds. Failed rollback or post-backup restart operations retain the
+state file for manual recovery. A stale state file prevents a new pre-backup run
+from overwriting recovery information.
 
 The derived Duplicati image itself carries `backup.keepRunning=true`, preventing
 the hook from stopping its own container.
@@ -103,6 +105,10 @@ services:
 > containers, mount host paths, and compromise the host. Use this image only on
 > a trusted system and restrict access to Duplicati.
 
+If Duplicati's `UID`/`GID` options are used, the resulting runtime user must
+also have permission to access the mounted Docker socket. Otherwise Docker CLI
+commands can fail with `permission denied` even though the CLI is installed.
+
 ## Building and testing
 
 ```sh
@@ -110,10 +116,11 @@ docker build --tag duplicati-with-docker:test .
 IMAGE=duplicati-with-docker:test ./tests/test-hooks.sh
 ```
 
-The integration test creates real Docker containers and verifies the stopped,
-opted-out, initially stopped, and Duplicati-container cases. It uses the active
-Docker daemon, so run it only where stopping all other unlabeled running
-containers is safe. Test containers are removed even when a check fails.
+The integration test requires a clean Docker daemon, such as a fresh CI runner.
+It checks for existing running containers before creating anything and aborts
+without modifying them if any are found. The test verifies normal lifecycle and
+rollback behavior using real Docker containers. Test containers are removed
+even when a check fails.
 
 Pull requests targeting `main` and pushes to `main` validate the pinned stable
 version, run ShellCheck, build the native image, verify its Docker CLI, and run

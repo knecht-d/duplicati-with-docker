@@ -9,6 +9,29 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
+rollback() {
+    rollback_failed=0
+
+    echo "Shutdown failed; restarting containers stopped by this hook" >&2
+    while IFS= read -r stopped_id; do
+        [ -n "$stopped_id" ] || continue
+        echo "Restarting container $stopped_id during rollback" >&2
+        if ! docker start "$stopped_id" >/dev/null; then
+            echo "Error: failed to restart container $stopped_id during rollback" >&2
+            rollback_failed=1
+        fi
+    done < "$STATE_FILE"
+
+    if [ "$rollback_failed" -eq 0 ]; then
+        rm -f "$STATE_FILE"
+        echo "Rollback complete; all containers stopped by this hook were restarted" >&2
+    else
+        echo "Error: automatic rollback was incomplete; state retained in $STATE_FILE for manual recovery" >&2
+    fi
+
+    exit 1
+}
+
 if ! command -v docker >/dev/null 2>&1; then
     echo "Error: Docker CLI is not available" >&2
     exit 1
@@ -33,7 +56,10 @@ fi
 
 while IFS= read -r container_id; do
     [ -n "$container_id" ] || continue
-    keep_running=$(docker inspect --format '{{ index .Config.Labels "backup.keepRunning" }}' "$container_id")
+    if ! keep_running=$(docker inspect --format '{{ index .Config.Labels "backup.keepRunning" }}' "$container_id"); then
+        echo "Error: failed to inspect container $container_id" >&2
+        rollback
+    fi
     if [ "$keep_running" = "true" ]; then
         continue
     fi
@@ -43,7 +69,7 @@ while IFS= read -r container_id; do
         echo "$container_id" >> "$STATE_FILE"
     else
         echo "Error: failed to stop container $container_id" >&2
-        exit 1
+        rollback
     fi
 done < "$RUNNING_FILE"
 

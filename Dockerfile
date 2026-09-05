@@ -3,8 +3,6 @@ FROM duplicati/duplicati:${DUPLICATI_VERSION}
 
 LABEL backup.keepRunning="true"
 
-USER root
-
 RUN set -eux; \
     if command -v apk >/dev/null 2>&1; then \
         apk add --no-cache docker-cli ca-certificates; \
