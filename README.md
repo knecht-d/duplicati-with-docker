@@ -115,9 +115,9 @@ opted-out, initially stopped, and Duplicati-container cases. It uses the active
 Docker daemon, so run it only where stopping all other unlabeled running
 containers is safe. Test containers are removed even when a check fails.
 
-Pull requests and pushes to any branch validate the pinned stable version, run
-ShellCheck, build the native image, verify its Docker CLI, and run the
-integration test. Pushes to `main` additionally publish multi-platform
+Pull requests targeting `main` and pushes to `main` validate the pinned stable
+version, run ShellCheck, build the native image, verify its Docker CLI, and run
+the integration test. Pushes to `main` additionally publish multi-platform
 `linux/amd64`, `linux/arm64`, and `linux/arm/v7` images tagged `stable`, `latest`,
 the pinned Duplicati version, and `sha-<commit>`.
 

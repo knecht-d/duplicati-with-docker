@@ -5,6 +5,8 @@ on:
     branches:
       - main
   push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -33,7 +35,7 @@ jobs:
         run: docker build --tag duplicati-with-docker:test .
 
       - name: Verify Docker CLI
-        run: docker run --rm duplicati-with-docker:test docker version --client
+        run: docker run --rm duplicati-with-docker:test docker --version
 
       - name: Test lifecycle hooks
         env:
