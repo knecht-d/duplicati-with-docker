@@ -117,7 +117,8 @@ containers is safe. Test containers are removed even when a check fails.
 
 Pull requests targeting `main` and pushes to `main` validate the pinned stable
 version, run ShellCheck, build the native image, verify its Docker CLI, and run
-the integration test. Pushes to `main` additionally publish multi-platform
+the integration test. The publishing workflow reuses the same test workflow and
+publishes only after it succeeds. Pushes to `main` publish multi-platform
 `linux/amd64`, `linux/arm64`, and `linux/arm/v7` images tagged `stable`, `latest`,
 the pinned Duplicati version, and `sha-<commit>`.
 

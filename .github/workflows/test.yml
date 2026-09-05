@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes shellcheck
+
+      - name: Run ShellCheck
+        run: shellcheck hooks/*.sh tests/*.sh
+
+      - name: Verify pinned Duplicati version
+        run: |
+          version=$(sed -n 's/^ARG DUPLICATI_VERSION=//p' Dockerfile)
+          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-stable$'
+
+      - name: Build native test image
+        run: docker build --tag duplicati-with-docker:test .
+
+      - name: Verify Docker CLI
+        run: docker run --rm duplicati-with-docker:test docker --version
+
+      - name: Test lifecycle hooks
+        env:
+          IMAGE: duplicati-with-docker:test
+        run: ./tests/test-hooks.sh

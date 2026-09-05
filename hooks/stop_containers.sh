@@ -26,7 +26,7 @@ if [ -e "$STATE_FILE" ]; then
 fi
 
 : > "$STATE_FILE"
-if ! docker ps --quiet > "$RUNNING_FILE"; then
+if ! docker ps --no-trunc --quiet > "$RUNNING_FILE"; then
     echo "Error: failed to list running containers" >&2
     exit 1
 fi
