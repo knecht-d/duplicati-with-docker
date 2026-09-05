@@ -1,8 +1,17 @@
 # duplicati-with-docker
 
+- **This project's derived image:**
+  [`knechtd/duplicati-with-docker`](https://hub.docker.com/r/knechtd/duplicati-with-docker)
+  ([available tags](https://hub.docker.com/r/knechtd/duplicati-with-docker/tags))
+- **Official upstream Duplicati image:**
+  [`duplicati/duplicati`](https://hub.docker.com/r/duplicati/duplicati)
+- **Official Duplicati project:**
+  [Website](https://duplicati.com/) ·
+  [GitHub](https://github.com/duplicati/duplicati)
+
 `duplicati-with-docker` is a small, unofficial extension of the official
-[Duplicati Docker image](https://hub.docker.com/r/duplicati/duplicati). It is
-**not a fork of Duplicati**: Duplicati is neither rebuilt nor repackaged here.
+Duplicati Docker image. It is **not a fork of Duplicati**: Duplicati is neither
+rebuilt nor repackaged here.
 
 This image adds only:
 
@@ -11,14 +20,14 @@ This image adds only:
 - a post-backup hook that restarts only the containers stopped by that hook;
 - the `backup.keepRunning=true` label for opting containers out of shutdown.
 
-The base image uses an explicitly pinned upstream `*-stable` version. Renovate
-proposes stable-version updates as pull requests so that CI and a maintainer can
-review them before publishing.
+The base image uses an explicitly pinned upstream `*-stable` version and image
+digest. Renovate proposes stable-version and same-tag digest updates as pull
+requests so that CI and a maintainer can review them before publishing.
 
 ## Backup lifecycle
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Duplicati starts backup] --> B[Pre-backup hook]
     B --> C{backup.keepRunning=true?}
     C -->|Yes| D[Keep container running]
@@ -69,14 +78,19 @@ container shutdown cannot be completed.
 
 ## Docker Compose example
 
-Replace `YOUR_DOCKERHUB_USERNAME` and the host backup paths as appropriate.
+Create a `.env` file containing strong values for `DUPLICATI_PASSWORD` and
+`SETTINGS_ENCRYPTION_KEY`, then adjust the host backup paths as appropriate.
 
 ```yaml
 services:
   duplicati:
-    image: YOUR_DOCKERHUB_USERNAME/duplicati-with-docker:stable
+    image: knechtd/duplicati-with-docker:stable
     container_name: duplicati
     restart: unless-stopped
+    environment:
+      DUPLICATI__WEBSERVICE_PASSWORD: ${DUPLICATI_PASSWORD:?set in .env}
+      DUPLICATI__DISABLE_DB_ENCRYPTION: "false"
+      SETTINGS_ENCRYPTION_KEY: ${SETTINGS_ENCRYPTION_KEY:?set in .env}
     ports:
       - "8200:8200"
     volumes:

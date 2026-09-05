@@ -24,10 +24,11 @@ jobs:
       - name: Run ShellCheck
         run: shellcheck hooks/*.sh tests/*.sh
 
-      - name: Verify pinned Duplicati version
+      - name: Verify pinned Duplicati base image
         run: |
           version=$(sed -n 's/^ARG DUPLICATI_VERSION=//p' Dockerfile)
           echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+-stable$'
+          grep -Eq '^FROM duplicati/duplicati:\$\{DUPLICATI_VERSION\}@sha256:[0-9a-f]{64}$' Dockerfile
 
       - name: Build native test image
         run: docker build --tag duplicati-with-docker:test .

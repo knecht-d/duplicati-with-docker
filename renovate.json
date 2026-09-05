@@ -15,7 +15,8 @@
       "matchPackageNames": [
         "duplicati/duplicati"
       ],
-      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+\\.\\d+-stable$/"
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+\\.\\d+-stable$/",
+      "pinDigests": true
     }
   ]
 }

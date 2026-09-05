@@ -49,6 +49,8 @@ jobs:
             type=raw,value=latest
             type=raw,value=${{ steps.version.outputs.version }}
             type=sha
+          labels: |
+            org.opencontainers.image.description=Unofficial Duplicati image with Docker CLI and lifecycle hooks for consistent container backups.
 
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v7
@@ -58,3 +60,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          sbom: true
+          provenance: mode=max
